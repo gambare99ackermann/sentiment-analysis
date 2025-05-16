@@ -3,7 +3,7 @@ import json
 from time import sleep
 from confluent_kafka import Consumer, Producer
 from langchain.prompts import PromptTemplate
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 import traceback
 
