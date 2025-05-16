@@ -133,7 +133,7 @@ def classify_and_generate(notes):
         "Reason": "Sentiment identified by Mistral",
         "Next Action Items": action_items
     }
-    
+
 # === Main Kafka Loop ===
 print(f"📡 Listening to Kafka topic: {KAFKA_INPUT_TOPIC}")
 try:
@@ -146,6 +146,13 @@ try:
             continue
 
         try:
+            # Extract Kafka log metadata
+            topic = msg.topic()
+            partition = msg.partition()
+            offset = msg.offset()
+
+            print(f"📥 Received message from topic '{topic}', partition {partition}, offset {offset}")
+
             payload = json.loads(msg.value().decode('utf-8'))
 
             # Skip already processed messages
@@ -160,10 +167,18 @@ try:
 
             result = classify_and_generate(comments)
             payload['result'] = result
+
+            # Add log metadata to payload
+            payload['kafka_log_info'] = {
+                "topic": topic,
+                "partition": partition,
+                "offset": offset
+            }
+
             enriched_data = json.dumps(payload).encode('utf-8')
             producer.produce(KAFKA_OUTPUT_TOPIC, enriched_data)
             producer.flush()
-            print(f"✅ Published enriched message: {result}")
+            print(f"✅ Published enriched message to '{KAFKA_OUTPUT_TOPIC}' [partition: {partition}, offset: {offset}]")
         except Exception as e:
             print(f"❌ Error processing message:\n{traceback.format_exc()}")
 
