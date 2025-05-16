@@ -1,8 +1,0 @@
-confluent-kafka
-langchain
-langchain-community
-openai
-python-dotenv
-tqdm
-langchain-groq
-langchain-openai
